@@ -25,6 +25,11 @@ project:
 
   toc:
     - file: "notebooks/01_EDA_y_Diagnóstico_de_Datos.ipynb"
+      title: "EDA y Diagnóstico"
+    - file: "notebooks/02_model_leakage_demo.ipynb"
+      title: "Benchmarking y Fuga"
+    - file: "notebooks/03_model_pipeline_cv.ipynb"
+      title: "Evaluación y Serialización"
 
 site:
   template: book-theme
