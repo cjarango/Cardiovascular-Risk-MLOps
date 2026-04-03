@@ -1,0 +1,33 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+
+project:
+  id: 91927bf2-abc1-48c5-8e0c-6653e3b5da54
+  title: "Análisis de Riesgo Cardiovascular - MLOps"
+  
+  authors:
+    - name: Juan Camilo Mendoza Arango
+      email: cjarango@uninorte.edu.co
+    - name: Paula Andrea Gómez Vargas
+      email: apaulag@uninorte.edu.co
+    - name: Miguel Ángel Pérez Vargas
+      email: vargasmiguel@uninorte.edu.co
+  
+  exclude:
+    - src/**
+    - _build/**
+    - .myst/**
+    - app/**
+    - data/**
+    - docker/**
+    - k8s/**
+    - .github/**
+
+  toc:
+    - file: "notebooks/01_EDA_y_Diagnóstico_de_Datos.ipynb"
+
+site:
+  template: book-theme
+  github: https://github.com/cjarango/Cardiovascular-Risk-MLOps
+  options:
+    style: custom.css
