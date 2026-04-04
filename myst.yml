@@ -25,6 +25,7 @@ project:
     - tests/**
 
   toc:
+    - file: README.md
     - file: "notebooks/01_EDA_y_Diagnóstico_de_Datos.ipynb"
       title: "EDA y Diagnóstico"
     - file: "notebooks/02_model_leakage_demo.ipynb"
