@@ -4,18 +4,14 @@ import joblib
 import pandas as pd
 
 
-
 model = joblib.load("app/model.joblib")
-
 
 
 app = FastAPI(title="API de Riesgo Cardiovascular")
 
 
-
 class Input(BaseModel):
     features: list
-
 
 
 COLUMNAS = [
@@ -26,10 +22,7 @@ COLUMNAS = [
 
 @app.post("/predict")
 def predict(data: Input):
-    
     df = pd.DataFrame([data.features], columns=COLUMNAS)
-
-    # Predecimos usando el DataFrame
     proba = model.predict_proba(df)[0][1]
 
     return {
