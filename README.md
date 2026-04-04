@@ -29,8 +29,10 @@ El conjunto consta de 11 características predictoras y 1 variable objetivo:
 * **HeartDisease (Target):** Clase de salida u objetivo clínico [`1`: Presencia de enfermedad cardíaca, `0`: Normal].
 
 **Cita y Referencia:**
-* **Origen:** [Kaggle - Heart Failure Prediction Dataset](https://www.kaggle.com/fedesoriano/heart-failure-prediction)
-* **Referencia:** fedesoriano. (September 2021). Heart Failure Prediction Dataset. Retrieved 30 de marzo del 2026 from https://www.kaggle.com/fedesoriano/heart-failure-prediction.
+
+El conjunto de datos utilizado en este proyecto proviene del repositorio *Heart Failure Prediction Dataset* disponible en **Kaggle**. La referencia bibliográfica para este trabajo es:
+
+* fedesoriano. (Septiembre, 2021). *Heart Failure Prediction Dataset*. Recuperado el 3 de abril de 2026 de https://www.kaggle.com/fedesoriano/heart-failure-prediction.
 
 ## Arquitectura y tecnologías utilizadas
 
@@ -60,6 +62,9 @@ heart-disease-mlops/
 ├── k8s/
 │   ├── deployment.yaml
 │   └── service.yaml
+├── monitoring/
+│   ├── drift_report.html
+│   └── generate_drift_report.py
 ├── notebooks/
 │   ├── 01_EDA_y_Diagnóstico_de_Datos.ipynb
 │   ├── 02_model_leakage_demo.ipynb
@@ -71,4 +76,71 @@ heart-disease-mlops/
 ├── .gitignore
 ├── custom.css
 ├── LICENSE
+├── setup.cfg
 └── myst.yml
+```
+
+## Monitoreo y mantenimiento del modelo
+
+Como fase crítica del ciclo de vida del proyecto, se integró un protocolo de monitoreo proactivo mediante la librería `Evidently AI`. El análisis de deriva estadística se ejecutó comparando el conjunto de entrenamiento (*Reference*) frente al conjunto de prueba (*Current*), funcionando como una validación interna de estabilidad fundamental antes del despliegue. Este procedimiento asegura que el modelo no solo sea preciso en la fase de entrenamiento, sino que sus bases estadísticas permanezcan coherentes al enfrentarse a nuevos datos, estableciendo así una línea base robusta para la operación del sistema.
+
+Los resultados del análisis demuestran una estabilidad global superior al $90\%$, lo que confirma la integridad del pipeline de datos. Se detectó una deriva estadísticamente significativa únicamente en la variable del sexo del paciente ($p < 0.05$ mediante Z-test); sin embargo, este comportamiento es plenamente consistente con la variabilidad esperada por el muestreo aleatorio durante la partición del dataset y no representa una degradación en la lógica predictiva.
+
+En conclusión, la estabilidad observada en las variables clínicas de mayor peso, como el colesterol, la presión arterial y la frecuencia cardíaca máxima, es un indicador inequívoco de que el modelo generaliza adecuadamente. La ausencia de sesgos estructurales relevantes y la consistencia en las distribuciones de los predictores clave permiten validar técnicamente el artefacto. Por lo tanto, el sistema se considera maduro y se encuentra listo para su integración en entornos de producción bajo la arquitectura de `FastAPI` y `Docker`.
+
+### Reporte de monitoreo
+
+El sistema genera un dashboard interactivo que permite inspeccionar:
+
+- Distribuciones de probabilidad  
+- Distancias estadísticas  
+- Variables con drift  
+
+**Ubicación:**
+
+```bash
+monitoring/drift_report.html
+```
+
+**Ubicación:**
+
+```bash
+monitoring/generate_drift_report.py
+```
+
+## ¿Cómo ejecutar el proyecto?
+
+Siga estos pasos para replicar el entorno de experimentación y despliegue:
+
+### 1. Preparación del Entorno Local
+
+Instale las dependencias optimizadas para evitar conflictos de versiones (NumPy < 2.0):
+
+```bash
+pip install -r docker/requirements.txt
+```
+
+### 2. Gestión de Monitoreo
+
+Genere o actualice el reporte de deriva estadística basado en los últimos datos:
+
+```bash
+python monitoring/generate_drift_report.py
+```
+
+### 3. Contenerización con Docker
+
+Construya y ejecute la API de inferencia en un entorno aislado:
+
+```bash
+docker build -t heart-disease-api -f docker/Dockerfile .
+docker run -p 80:80 heart-disease-api
+```
+
+### 4. Orquestación con Kubernetes (K8s)
+
+Despliegue el servicio de forma escalable en un clúster local (ej. Minikube):
+
+```bash
+kubectl apply -f k8s/
+```

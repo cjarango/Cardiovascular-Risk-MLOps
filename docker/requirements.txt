@@ -1,7 +1,19 @@
-fastapi
-uvicorn
-scikit-learn
-joblib
-pydantic
-pandas
-numpy
+# --- Núcleo de la API ---
+fastapi==0.125.0
+uvicorn==0.43.0
+pydantic<2.0.0
+
+# --- Procesamiento y Ciencia de Datos ---
+# Restricción crítica para evitar errores de compatibilidad con Evidently
+numpy>=1.26.4,<2.0.0
+pandas==2.3.3
+pyarrow==23.0.1
+scikit-learn==1.7.2
+joblib==1.5.3
+
+# --- Monitoreo y Reportes ---
+# Versión fija para asegurar la existencia del módulo 'report'
+evidently==0.4.15
+
+# --- Pruebas y Utilidades ---
+httpx
