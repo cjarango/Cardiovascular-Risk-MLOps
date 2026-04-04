@@ -3,7 +3,7 @@ version: 1
 
 project:
   id: 91927bf2-abc1-48c5-8e0c-6653e3b5da54
-  title: "Análisis de Riesgo Cardiovascular - MLOps"
+  title: "Clasificación de Riesgo Cardiovascular"
   
   authors:
     - name: Juan Camilo Mendoza Arango
@@ -23,9 +23,12 @@ project:
     - k8s/**
     - .github/**
     - tests/**
+    - monitoring/**
+    - .ruff_cache/**
 
   toc:
     - file: README.md
+      title: "Introducción"
     - file: "notebooks/01_EDA_y_Diagnóstico_de_Datos.ipynb"
       title: "EDA y Diagnóstico"
     - file: "notebooks/02_model_leakage_demo.ipynb"
