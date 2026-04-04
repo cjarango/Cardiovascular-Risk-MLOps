@@ -1,16 +1,28 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
-import numpy as np
+import pandas as pd
+
 
 model = joblib.load("app/model.joblib")
-app = FastAPI()
+app = FastAPI(title="API de Riesgo Cardiovascular")
 
 class Input(BaseModel):
     features: list
 
+COLUMNAS = [
+    "Age", "Sex", "ChestPainType", "RestingBP", "Cholesterol", 
+    "FastingBS", "RestingECG", "MaxHR", "ExerciseAngina", "Oldpeak", "ST_Slope"
+]
+
 @app.post("/predict")
 def predict(data: Input):
-    X = np.array(data.features).reshape(1, -1)
-    proba = model.predict_proba(X)[0][1]
-    return {"heart_disease_probability": proba, "prediction": int(proba > 0.5)}
+    df = pd.DataFrame([data.features], columns=COLUMNAS)
+    
+    # Predecimos
+    proba = model.predict_proba(df)[0][1]
+    
+    return {
+        "heart_disease_probability": float(proba), 
+        "prediction": int(proba > 0.5)
+    }

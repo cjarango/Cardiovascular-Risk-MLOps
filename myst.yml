@@ -22,6 +22,7 @@ project:
     - docker/**
     - k8s/**
     - .github/**
+    - tests/**
 
   toc:
     - file: "notebooks/01_EDA_y_Diagnóstico_de_Datos.ipynb"
