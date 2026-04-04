@@ -1,14 +1,5 @@
 # Sistema de Clasificación y Despliegue MLOps para Riesgo Cardiovascular
 
----
-
-**Autores:**
-* **Paula Andrea Gómez Vargas** (apaulag@uninorte.edu.co)
-* **Juan Camilo Mendoza Arango** (cjarango@uninorte.edu.co)
-* **Miguel Ángel Pérez Vargas** (vargasmiguel@uninorte.edu.co)
-
----
-
 ## Descripción general del proyecto
 
 Este proyecto documenta y ejecuta el ciclo de vida completo de un modelo de Machine Learning (MLOps) diseñado para predecir el riesgo de enfermedad cardíaca. A diferencia de un ejercicio puramente estadístico, este repositorio abarca desde el diagnóstico clínico de los datos y la mitigación rigurosa de fuga de información (Data Leakage), hasta la serialización y puesta en producción del artefacto predictivo.
