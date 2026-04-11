@@ -485,7 +485,7 @@ def plot_confusion_matrix(
     xlabel = "Etiqueta Predicha" if spanish else "Predicted Label"
     ylabel = "Etiqueta Real" if spanish else "True Label"
 
-    ax.set_title(title, fontsize=label_size + 2, fontweight="bold", pad=20)
+    ax.set_title(title, fontsize=label_size + 2, fontweight="bold", pad=label_pad -2)
     ax.set_xlabel(xlabel, fontsize=label_size, fontweight="bold", labelpad=label_pad)
     ax.set_ylabel(ylabel, fontsize=label_size, fontweight="bold", labelpad=label_pad)
 
@@ -496,4 +496,4 @@ def plot_confusion_matrix(
     ax.tick_params(axis="both", labelsize=label_size - 1)
 
     plt.tight_layout()
-    _render_figure(fig, dpi=120)
+    _render_figure(fig, dpi=150)

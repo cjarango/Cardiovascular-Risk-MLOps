@@ -1550,20 +1550,16 @@ def plot_pca_3d_interactive(
     df_work = df.dropna(subset=features + [target]).copy()
     X = df_work[features]
 
-    # Robust normalization and rank transformation
     scaler_robust = RobustScaler()
     X_scaled = scaler_robust.fit_transform(X)
     df_ranks = pd.DataFrame(X_scaled, columns=features).rank()
 
-    # Eigendecomposition of the Spearman correlation structure
     corr_matrix = df_ranks.corr(method='pearson')
     eigenvalues, eigenvectors = np.linalg.eig(corr_matrix)
 
-    # Sort components by variance magnitude
     idx = eigenvalues.argsort()[::-1]
     eigenvalues, eigenvectors = eigenvalues[idx], eigenvectors[:, idx]
 
-    # Projection of standardized ranks onto the principal axes
     scaler_std = StandardScaler()
     ranks_std = scaler_std.fit_transform(df_ranks)
     pca_results = np.dot(ranks_std, eigenvectors[:, :3])
@@ -1623,16 +1619,16 @@ def plot_pca_3d_interactive(
     fig.update_layout(
         width=figsize[0],
         height=figsize[1],
-        margin=dict(l=0, r=0, b=0, t=100),
+        margin=dict(l=0, r=0, b=0, t=70),
         template="plotly_white",
         
-        # Legend Title as a centered annotation
+        
         annotations=[dict(
             text=f"<b>{legend_title}</b>",
             showarrow=False,
             xref="paper", yref="paper",
-            x=0.5, y=1.15,
-            xanchor="center", yanchor="top",
+            x=0.5, y=1.06,         
+            xanchor="center", yanchor="bottom",
             font=dict(size=14, color="#2c3e50")
         )],
         
@@ -1650,11 +1646,11 @@ def plot_pca_3d_interactive(
         legend=dict(
             orientation="h",
             yanchor="top",
-            y=1.08,
+            y=1.0,              
             xanchor="center",
             x=0.5,
             itemsizing="constant",
-            font=dict(size=12),
+            font=dict(size=15),
             bgcolor="rgba(255, 255, 255, 0)"
         )
     )
