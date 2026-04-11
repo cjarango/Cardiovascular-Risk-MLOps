@@ -611,11 +611,11 @@ def analyze_chi2_association(
         lambda r: f"{r['Chi2_Obs']:.2f}{_significance_stars(r['P_Final'])}", axis=1
     )
     df_res["Cramér's V"] = df_res["V_Cramer"].map("{:.2f}".format)
-    df_res["Effect Size"] = df_res["V_Cramer"].apply(_interpret_v)
+    df_res["Effect"] = df_res["V_Cramer"].apply(_interpret_v)
     df_res["Critical Val"] = df_res["Critical Val"].map("{:.2f}".format)
 
     summary = df_res[
-        ["Feature", "Chi-square", "DF", "Critical Val", "Cramér's V", "Effect Size"]
+        ["Feature", "Chi-square", "DF", "Critical Val", "Cramér's V", "Effect"]
     ].sort_values("Cramér's V", ascending=False)
 
     if spanish:
@@ -625,7 +625,7 @@ def analyze_chi2_association(
             "GL",
             "Valor Crítico",
             "V de Cramér",
-            "Tamaño del Efecto",
+            "Efecto",
         ]
 
     # AJUSTE DE CENTRADO AQUÍ
@@ -758,20 +758,20 @@ def analyze_continuous_association(
         lambda r: f"{r['U_Obs']:.2f}{_significance_stars(r['P_U_Final'])}", axis=1
     )
 
-    df_res["Homoscedasticity"] = df_res["P_BF_Final"].apply(
+    df_res["Homoced."] = df_res["P_BF_Final"].apply(
         lambda p: (
-            "Homocedasticidad" if p >= 0.05 else "Heterocedasticidad"
+            "Sí" if p >= 0.05 else "No"
         ) if spanish else (
-            "Homoscedastic" if p >= 0.05 else "Heteroscedastic"
+            "Yes" if p >= 0.05 else "No"
         )
     )
 
-    df_res["Rosenthal's r"] = df_res["r_Rosenthal"].map("{:.2f}".format)
-    df_res["Effect Size"]   = df_res["r_Rosenthal"].apply(_interpret_r)
+    df_res["r"] = df_res["r_Rosenthal"].map("{:.2f}".format)
+    df_res["Effect"]   = df_res["r_Rosenthal"].apply(_interpret_r)
 
     summary = df_res[[
         "Feature", "Data Present", "Data Absent",
-        "Homoscedasticity", "U", "Rosenthal's r", "Effect Size",
+        "Homoced.", "U", "r", "Effect",
     ]].copy()
 
     if spanish:
@@ -779,17 +779,15 @@ def analyze_continuous_association(
             "Feature": "Variable",
             "Data Present": g0_name,
             "Data Absent": g1_name,
-            "Homoscedasticity": "Homocedasticidad",
-            "Rosenthal's r": "r de Rosenthal",
-            "Effect Size": "Tamaño del Efecto",
+            "Effect": "Efecto",
         })
-        sort_col = "r de Rosenthal"
+        sort_col = "r"
     else:
         summary = summary.rename(columns={
             "Data Present": g0_name,
             "Data Absent": g1_name,
         })
-        sort_col = "Rosenthal's r"
+        sort_col = "r"
 
     summary = summary.sort_values(sort_col, ascending=False)
 
@@ -1365,36 +1363,49 @@ def plot_pca_rank_2d(
     Two-panel rank-based PCA: scree plot and 2-D projection scatter.
 
     Standard PCA is sensitive to outliers and non-normal distributions.
-    This function mitigates both issues by:
+    This function implements a Robust PCA approach using Spearman's rank 
+    correlation matrix as the fundamental coordinate system:
 
-    1. Applying **RobustScaler** (median / IQR scaling).
-    2. Converting to **ranks** before computing the covariance structure.
-    3. Using the **Spearman correlation matrix** eigendecomposition
-       in place of the standard PCA on raw values.
+    1. **Robust Pre-scaling**: Uses RobustScaler (median/IQR) to handle 
+       outliers in the raw feature space.
+    2. **Rank Transformation**: Converts data to ranks to capture monotonic 
+       relationships and ensure distribution-free properties.
+    3. **Spearman Eigen-decomposition**: Computes the PCA over the Spearman 
+       correlation matrix (equivalent to Pearson on ranks).
+    4. **Standardized Projection**: Standardizes the ranks before projecting 
+       onto eigenvectors to ensure variance consistency.
 
     **Left panel** — Cumulative explained-variance scree plot with a
     90 % reference line.
 
     **Right panel** — 2-D scatter of PC1 vs PC2, coloured by *target_col*.
     """
-    from sklearn.preprocessing import RobustScaler
+    from sklearn.preprocessing import RobustScaler, StandardScaler
+    from scipy.stats import spearmanr
 
     df_temp = df[features + [target_col]].dropna()
     X = df_temp[features]
     y = df_temp[target_col]
 
-    scaler   = RobustScaler()
-    X_scaled = scaler.fit_transform(X)
-    df_ranks = pd.DataFrame(X_scaled).rank()
+    scaler_robust = RobustScaler()
+    X_scaled = scaler_robust.fit_transform(X)
+    
+    # Rank conversion
+    df_ranks = pd.DataFrame(X_scaled, columns=features).rank()
 
-    corr_sp, _ = spearmanr(df_ranks)
+    corr_sp = df_ranks.corr(method='pearson')
+    
+    # Eigen-decomposition
     eigenvalues, eigenvectors = np.linalg.eig(corr_sp)
 
     idx = eigenvalues.argsort()[::-1]
     eigenvalues  = eigenvalues[idx]
     eigenvectors = eigenvectors[:, idx]
 
-    X_pca   = np.dot(scaler.fit_transform(df_ranks), eigenvectors)
+    scaler_std = StandardScaler()
+    ranks_standardized = scaler_std.fit_transform(df_ranks)
+    X_pca = np.dot(ranks_standardized, eigenvectors)
+
     exp_var = eigenvalues / np.sum(eigenvalues)
     cum_var = np.cumsum(exp_var)
     n_comp  = len(cum_var)
@@ -1499,47 +1510,68 @@ def plot_pca_3d_interactive(
     target_mapping: dict | None = None,
     title: str | None = None,
     legend_title: str = "Class",
-    figsize: tuple[int, int] = (800, 500),
+    figsize: tuple[int, int] = (600, 500),
 ):
     """
     Interactive 3-D PCA scatter plot optimized for MyST Markdown.
 
-    Returns HTML-ready Plotly figure centered for static site rendering.
+    This function implements a Robust PCA approach by performing the 
+    eigendecomposition on the Spearman rank correlation matrix to mitigate 
+    the influence of outliers and non-normal distributions.
 
     Parameters
     ----------
     df : pd.DataFrame
+        Source dataset.
     features : list of str
+        Continuous variables to include in the dimensionality reduction.
     target : str
+        Column name for class coloring.
     target_mapping : dict, optional
-        Works with both str and int keys.
+        Works with both str and int keys to remap class labels.
     title : str, optional
-        No automatic title.
+        No automatic title; text for the main figure title.
     legend_title : str, optional
-        Custom legend title.
+        Custom legend title displayed above the horizontal labels.
     figsize : tuple
         Width × height in pixels.
 
     Returns
     -------
-    IPython.display.HTML
+    plotly.graph_objects.Figure
+        Interactive figure object for native site rendering.
     """
-
     import plotly.graph_objects as go
-    from sklearn.decomposition import PCA
-    from sklearn.preprocessing import RobustScaler
-    from IPython.display import HTML
+    import numpy as np
+    import pandas as pd
+    from sklearn.preprocessing import RobustScaler, StandardScaler
 
+    # --- 1. Data Preprocessing & Robust PCA Engine ---
     df_work = df.dropna(subset=features + [target]).copy()
-    X_scaled = RobustScaler().fit_transform(df_work[features])
+    X = df_work[features]
 
-    pca = PCA(n_components=3, random_state=42)
-    pca_results = pca.fit_transform(X_scaled)
-    exp_var = pca.explained_variance_ratio_ * 100
+    # Robust normalization and rank transformation
+    scaler_robust = RobustScaler()
+    X_scaled = scaler_robust.fit_transform(X)
+    df_ranks = pd.DataFrame(X_scaled, columns=features).rank()
+
+    # Eigendecomposition of the Spearman correlation structure
+    corr_matrix = df_ranks.corr(method='pearson')
+    eigenvalues, eigenvectors = np.linalg.eig(corr_matrix)
+
+    # Sort components by variance magnitude
+    idx = eigenvalues.argsort()[::-1]
+    eigenvalues, eigenvectors = eigenvalues[idx], eigenvectors[:, idx]
+
+    # Projection of standardized ranks onto the principal axes
+    scaler_std = StandardScaler()
+    ranks_std = scaler_std.fit_transform(df_ranks)
+    pca_results = np.dot(ranks_std, eigenvectors[:, :3])
+    exp_var = (eigenvalues / np.sum(eigenvalues)) * 100
 
     df_work["PC1"], df_work["PC2"], df_work["PC3"] = pca_results.T
 
-    # FIX: robust mapping (handles str/int mismatch)
+    # --- 2. Labeling and Color Mapping ---
     df_work["_target_str"] = df_work[target].astype(str)
     if target_mapping:
         mapping_str = {str(k): v for k, v in target_mapping.items()}
@@ -1547,11 +1579,9 @@ def plot_pca_3d_interactive(
     else:
         df_work["_label"] = df_work["_target_str"]
 
-    palette = {
-        "0": _PRIMARY_BLUE,
-        "1": _ACCENT_RED
-    }
+    palette = {"0": "#1f77b4", "1": "#d62728"}
 
+    # --- 3. Figure Construction ---
     fig = go.Figure()
 
     for val in sorted(df_work["_target_str"].unique()):
@@ -1560,81 +1590,73 @@ def plot_pca_3d_interactive(
         color = palette.get(val, "#7f8c8d")
 
         fig.add_trace(go.Scatter3d(
-            x=df_work.loc[mask, "PC1"],
-            y=df_work.loc[mask, "PC2"],
-            z=df_work.loc[mask, "PC3"],
-            mode="markers",
+            x=df_work.loc[mask, 'PC1'], 
+            y=df_work.loc[mask, 'PC2'], 
+            z=df_work.loc[mask, 'PC3'],
+            mode='markers',
             marker=dict(
-                size=4,
-                color=color,
-                opacity=0.75,
+                size=4.0, 
+                color=color, 
+                opacity=0.75, 
                 line=dict(width=0.3, color="black")
             ),
             name=name,
-            legendgroup=name,
-            customdata=np.stack((
-                df_work.loc[mask, "_label"],
-                df_work.loc[mask, "PC1"],
-                df_work.loc[mask, "PC2"],
-                df_work.loc[mask, "PC3"],
-            ), axis=-1),
+            customdata=df_work.loc[mask, ["_label", "PC1", "PC2", "PC3"]].values,
             hovertemplate=(
                 "<b>Class:</b> %{customdata[0]}<br>"
                 "<b>PC1:</b> %{customdata[1]:.2f}<br>"
                 "<b>PC2:</b> %{customdata[2]:.2f}<br>"
                 "<b>PC3:</b> %{customdata[3]:.2f}"
                 "<extra></extra>"
-            ),
+            )
         ))
+
+    # --- 4. Scene and Layout Configuration ---
+    axis_style = dict(
+        gridcolor="#d1d1d1", 
+        showbackground=True, 
+        backgroundcolor="#ebebeb",
+        zerolinecolor="#999999",
+        tickfont=dict(size=10, color="#444444")
+    )
 
     fig.update_layout(
         width=figsize[0],
         height=figsize[1],
+        margin=dict(l=0, r=0, b=0, t=100),
         template="plotly_white",
-        margin=dict(l=0, r=0, b=0, t=0),
-
-        title=dict(
-            text=f"<b>{title}</b>",
-            x=0.5,
-            y=0.95,
-            font=dict(size=14)
-        ) if title else None,
-
+        
+        # Legend Title as a centered annotation
+        annotations=[dict(
+            text=f"<b>{legend_title}</b>",
+            showarrow=False,
+            xref="paper", yref="paper",
+            x=0.5, y=1.15,
+            xanchor="center", yanchor="top",
+            font=dict(size=14, color="#2c3e50")
+        )],
+        
         scene=dict(
             xaxis_title=f"PC1 ({exp_var[0]:.1f}%)",
             yaxis_title=f"PC2 ({exp_var[1]:.1f}%)",
             zaxis_title=f"PC3 ({exp_var[2]:.1f}%)",
-            camera=dict(eye=dict(x=1.6, y=1.6, z=0.2)),
-            xaxis=dict(gridcolor="lightgrey", showbackground=True, backgroundcolor="#f8f9fa"),
-            yaxis=dict(gridcolor="lightgrey", showbackground=True, backgroundcolor="#f8f9fa"),
-            zaxis=dict(gridcolor="lightgrey", showbackground=True, backgroundcolor="#f8f9fa"),
+            xaxis=axis_style,
+            yaxis=axis_style,
+            zaxis=axis_style,
+            camera=dict(eye=dict(x=1.5, y=1.5, z=0.6))
         ),
-
+        
+        showlegend=True,
         legend=dict(
-            title_text=f"<b>{legend_title}</b><br>",
-            font=dict(size=12),
-            itemsizing="constant",
-            itemwidth=30,
-            tracegroupgap=2,
+            orientation="h",
             yanchor="top",
-            y=0.85,
-            xanchor="left",
-            x=-0.15,
-            bgcolor="rgba(255,255,255,0.5)",
-        ),
+            y=1.08,
+            xanchor="center",
+            x=0.5,
+            itemsizing="constant",
+            font=dict(size=12),
+            bgcolor="rgba(255, 255, 255, 0)"
+        )
     )
 
-    return HTML(f"""
-    <div style="display:flex; justify-content:center; margin:0; padding:0;">
-        <style>
-            .js-plotly-plot .plotly .main-svg {{
-                padding: 0 !important;
-            }}
-            .js-plotly-plot {{
-                padding: 0 !important;
-                margin: 0 !important;
-            }}
-        </style>
-        {fig.to_html(include_plotlyjs="cdn", full_html=False)}
-    </div>
-    """)
+    return fig

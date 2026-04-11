@@ -4,14 +4,41 @@ version: 1
 project:
   id: 91927bf2-abc1-48c5-8e0c-6653e3b5da54
   title: "Clasificación de Riesgo Cardiovascular"
+  # Agregamos la referencia global a tu archivo de bibliografía
+  # bibliography:
+    # - references.bib
   
   authors:
-    - name: Juan Camilo Mendoza Arango
+    - name:
+        literal: "Juan Camilo Mendoza Arango"
       email: cjarango@uninorte.edu.co
-    - name: Paula Andrea Gómez Vargas
+      orcid: 0000-0001-6872-8311
+      affiliations:
+        - name: Universidad del Norte
+          city: Barranquilla
+          country: Colombia
+      github: cjarango
+      corresponding: True
+
+    - name:
+        literal: "Paula Andrea Gómez Vargas"
       email: apaulag@uninorte.edu.co
-    - name: Miguel Ángel Pérez Vargas
+      affiliations:
+        - name: Universidad del Norte
+          city: Barranquilla
+          country: Colombia
+      github: apaulag24 
+      corresponding: True
+
+    - name:
+        literal: "Miguel Ángel Pérez Vargas"
       email: vargasmiguel@uninorte.edu.co
+      affiliations:
+        - name: Universidad del Norte
+          city: Barranquilla
+          country: Colombia
+      github: miguelpvmr
+      corresponding: True
   
   exclude:
     - src/**
@@ -30,7 +57,7 @@ project:
     - file: README.md
       title: "Introducción"
     - file: "notebooks/01_EDA_y_Diagnóstico_de_Datos.ipynb"
-      title: "EDA y Diagnóstico"
+      title: "Análisis Exploratorio"
     - file: "notebooks/02_model_leakage_demo.ipynb"
       title: "Benchmarking y Fuga"
     - file: "notebooks/03_model_pipeline_cv.ipynb"
@@ -41,3 +68,6 @@ site:
   github: https://github.com/cjarango/Cardiovascular-Risk-MLOps
   options:
     style: custom.css
+    # FIX para Plotly: Carga la librería en el HEAD de todas las páginas
+    head_scripts:
+      - https://cdn.plot.ly/plotly-latest.min.js

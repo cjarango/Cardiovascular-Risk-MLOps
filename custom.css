@@ -1,59 +1,58 @@
-/* =========================================
-   1. Traducción de Bloques de Código
-   ========================================= */
+/* ============================================================
+   1. PERSONALIZACIÓN DE INTERFAZ GLOBAL (BRANDING)
+   ============================================================ */
 
-/* Oculta el texto "Source" original */
-.myst-dropdown-header-title {
-  font-size: 0;
+.myst-theme-button {
+    display: none !important;
 }
 
-/* Muestra "Mostrar código" cuando está cerrado */
-.myst-dropdown-header-title::after {
-  content: "Mostrar código";
-  font-size: 1rem;
+span.text-md.sm\:text-xl.tracking-tight.sm\:mr-5 {
+    font-size: 0 !important;
 }
 
-/* Cambia a "Ocultar código" cuando está abierto (details[open]) */
-details[open] .myst-dropdown-header-title::after {
-  content: "Ocultar código";
+span.text-md.sm\:text-xl.tracking-tight.sm\:mr-5::after {
+    content: "Clasificación de Riesgo Cardiovascular";
+    font-size: 1.1rem !important;
+    visibility: visible;
+    font-weight: 600;
+    color: inherit;
+    letter-spacing: -0.025em;
+}
+
+footer a[href*="mystmd.org"], 
+span.self-center.ml-2.text-sm,
+svg[viewBox="0 0 100 100"] {
+    display: none !important;
+    pointer-events: none;
 }
 
 
-/* =========================================
-   2. Traducción de la Barra de Navegación (Contents)
-   ========================================= */
+/* ============================================================
+   2. TRADUCCIÓN DE NAVEGACIÓN Y ESTRUCTURA
+   ============================================================ */
 
-/* 1. Ocultamos el texto original "Contents" reduciendo la fuente del contenedor a 0 */
 .myst-outline-header {
     font-size: 0 !important;
 }
 
-/* 2. Inyectamos "CONTENIDO" justo antes del botón, restaurando el tamaño original (text-sm equivale a 0.875rem) */
 .myst-outline-header::before {
     content: "CONTENIDO";
     font-size: 0.875rem !important; 
     line-height: 1.5rem;
     display: inline-flex;
     align-items: center;
-    flex-grow: 1; /* Empuja la flecha hacia la derecha si es necesario */
+    flex-grow: 1;
+    visibility: visible;
 }
 
-/* 3. Blindamos el botón de la flecha para que el font-size: 0 no lo afecte */
 .myst-outline-collapsible {
     font-size: initial !important;
 }
 
-
-/* =========================================
-   3. Traducción de la Tabla de Contenidos Local
-   ========================================= */
-
-/* Oculta el texto "On this page" original de la barra derecha */
 .page-toc-header {
     font-size: 0 !important;
 }
 
-/* Inyecta "En esta página" */
 .page-toc-header::after {
     content: "En esta página";
     font-size: 0.85rem;
@@ -63,10 +62,227 @@ details[open] .myst-dropdown-header-title::after {
 }
 
 
-/* =========================================
-   4. Ocultar Botón de Tema (Fijar Modo Claro)
-   ========================================= */
+/* ============================================================
+   3. TRADUCCIÓN DE COMPONENTES Y BLOQUES
+   ============================================================ */
 
-.myst-theme-button {
+.myst-dropdown-header-title {
+    font-size: 0 !important;
+}
+
+.myst-dropdown-header-title::after {
+    content: "Mostrar código";
+    font-size: 1rem;
+    visibility: visible;
+}
+
+details[open] .myst-dropdown-header-title::after {
+    content: "Ocultar código";
+}
+
+.myst-bibliography-header {
+    font-size: 0 !important;
+}
+
+.myst-bibliography-header::before {
+    content: "Referencias";
+    font-size: 1.125rem !important; 
+    font-weight: 600 !important; 
+    visibility: visible;
+    display: inline-block;
+}
+
+.myst-bibliography-header a {
+    font-size: 1.125rem !important;
+    visibility: visible;
+    margin-left: 0.5rem;
+}
+
+
+/* ============================================================
+   4. CABECERA DE AUTORES (FRONTMATTER) - ESTILO ARTÍCULO FINAL
+   ============================================================ */
+
+header.myst-fm-authors-affiliations {
+    margin-top: 2.5rem !important; 
+    padding-top: 0 !important;
+    border-top: none !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Romper la rejilla para texto fluido */
+.myst-fm-authors-grid {
+    display: block !important;
+    line-height: 1.6 !important;
+}
+
+/* Ocultar etiquetas institucionales y de roles, PERO dejar los iconos intactos */
+.myst-fm-authors-header-authors,
+.myst-fm-authors-header-affil,
+.myst-fm-author-roles,
+.myst-fm-author-affiliations,
+.myst-fm-affiliations,
+.myst-fm-affiliation-col {
     display: none !important;
+}
+
+/* Etiqueta "AUTORES: " inicial */
+.myst-fm-authors-grid::before {
+    content: "AUTORES: ";
+    font-size: 0.75rem; 
+    font-weight: 400; 
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-right: 0.4rem;
+}
+
+/* Los contenedores de los autores deben ser inline */
+.myst-fm-author-col {
+    display: inline !important;
+}
+
+/* Neutralizar la negrita que inyecta MyST y forzar tamaño normal */
+span.myst-fm-author,
+button.myst-fm-author-popover,
+span.myst-fm-author-name {
+    font-weight: 400 !important;
+    color: #111827 !important;
+    font-size: 1rem !important;
+}
+
+/* ============================================================
+   LA COMA: LÓGICA CONDICIONAL AVANZADA (:has)
+   ============================================================ */
+
+/* 1. Ponemos una coma después de la caja de cada autor (justo después de los iconos) */
+.myst-fm-author-col::after {
+    content: ", ";
+    color: #4b5563;
+    font-weight: 400;
+}
+
+/* 2. LA MAGIA: Si una caja de autor NO TIENE otra caja de autor después, le quitamos la coma.
+   Esto garantiza que Miguel nunca tenga coma, sin importar cuántos divs ocultos haya al final. */
+.myst-fm-author-col:not(:has(~ .myst-fm-author-col))::after {
+    content: "" !important;
+    display: none !important;
+}
+
+
+/* ============================================================
+   NORMALIZACIÓN DE ESPACIADO: MARKDOWN VS JUPYTER
+   ============================================================ */
+
+.myst-article-content > :first-child,
+.myst-notebook-cell:first-of-type,
+.myst-notebook-cell:first-of-type > :first-child,
+article > div > h1:first-of-type,
+article > div > h2:first-of-type {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+
+/* ============================================================
+   5. AJUSTE DE NAVEGACIÓN LATERAL (SIDEBAR)
+   ============================================================ */
+
+.myst-toc-item:first-child {
+    font-size: 0 !important;
+}
+
+.myst-toc-item:first-child::before {
+    content: "Introducción";
+    font-size: 1rem !important; 
+    font-family: inherit !important;
+    font-weight: 400; 
+    visibility: visible;
+    display: inline-block;
+    color: inherit;
+}
+
+/* Estado Activo: Fondo azul persistente, incluso en hover */
+.myst-toc-item.active:first-child,
+.myst-toc-item.active:first-child:hover {
+    background-color: #DEEDFE !important; 
+    border-radius: 0.375rem !important; 
+}
+
+.myst-toc-item.active:first-child::before {
+    color: #111827 !important; 
+}
+
+/* Estado Hover: Solo cambia a gris si NO está activo */
+.myst-toc-item:first-child:not(.active):hover {
+    background-color: #EFF2F6 !important;
+    border-radius: 0.375rem !important;
+}
+
+/* Neutralizar caja interna */
+.myst-toc-item:first-child > * {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+
+/* ============================================================
+   6. UNIFICACIÓN DE TARJETAS DE NAVEGACIÓN (FOOTER LINKS)
+   ============================================================ */
+
+/* A. Reset de estilos generales para los links del footer */
+a.myst-footer-link,
+a.myst-footer-link:hover,
+a.myst-footer-link *,
+a.myst-footer-link *:hover {
+    text-decoration: none !important;
+}
+
+/* El borde azul al pasar el mouse se mantiene */
+a.myst-footer-link:hover {
+    border-color: #2563eb !important;
+}
+
+/* B. ESTANDARIZAR TÍTULOS: Nativos (Antecedentes) e Inyectados (Introducción) */
+/* Agrupamos selectores para que hereden exactamente lo mismo, incluyendo la negrilla y el color base */
+a.myst-footer-link .flex-grow > div:not(.myst-footer-link-group),
+a.myst-footer-link[href="/"] .flex-grow::after {
+    font-family: inherit !important;
+    font-size: 1rem !important; /* Aumentamos un poco para igualar */
+    color: #4c515c !important;   /* El gris Slate 400 base */
+    display: block !important;
+}
+
+/* C. Subtítulos superiores (Anterior / Siguiente) */
+.myst-footer-link-group {
+    display: block !important;
+    visibility: visible !important;
+    font-size: 0.8rem !important; 
+    color: #000000 !important;
+    margin-bottom: 0.25rem;
+}
+
+
+/* E. Ajuste específico para la tarjeta de Introducción (href="/") */
+a.myst-footer-link[href="/"] .flex-grow {
+    font-size: 0 !important; /* Oculta texto residual de MyST en la raíz */
+    text-align: right;       /* Alinea al lado derecho cuando es 'Anterior' */
+}
+
+a.myst-footer-link[href="/"] .flex-grow::after {
+    content: "Introducción";
+    visibility: visible !important;
+}
+
+/* F. HOVER DE COLOR DE TEXTO UNIVERSAL */
+/* Esta regla blindada asegura que *cualquier* título de footer (nativo o inyectado) se vuelva azul al pasar el mouse */
+a.myst-footer-link:hover .flex-grow > div:not(.myst-footer-link-group),
+a.myst-footer-link:hover .flex-grow::after {
+    color: #2563eb !important; /* El azul para el texto en hover */
+}
+
+/* G. Acabado de la tarjeta */
+.block-nav-link {
+    padding: 1.25rem !important;
+    border-radius: 8px !important;
+    background-color: transparent !important;
 }

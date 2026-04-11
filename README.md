@@ -1,12 +1,12 @@
 # Sistema de Clasificación y Despliegue MLOps para Riesgo Cardiovascular
 
-## Descripción general del proyecto
+# Descripción general del proyecto
 
-Este proyecto documenta y ejecuta el ciclo de vida completo de un modelo de Machine Learning (MLOps) diseñado para predecir el riesgo de enfermedad cardíaca. A diferencia de un ejercicio puramente estadístico, este repositorio abarca desde el diagnóstico clínico de los datos y la mitigación rigurosa de fuga de información (Data Leakage), hasta la serialización y puesta en producción del artefacto predictivo.
+Este proyecto documenta y ejecuta el ciclo de vida completo de un modelo de Machine Learning (MLOps) diseñado para predecir el riesgo de enfermedad cardíaca. Toda la documentación técnica, los hallazgos del análisis exploratorio y los detalles de la arquitectura se encuentran disponibles y renderizados para su consulta en la página oficial del proyecto: https://cjarango.github.io/Cardiovascular-Risk-MLOps/.
 
-El flujo de trabajo integra la construcción de pipelines robustos, el empaquetado del modelo en un entorno aislado y su despliegue mediante una API REST, garantizando que el sistema pase de la fase de experimentación local a una arquitectura escalable y lista para integrarse en aplicaciones clínicas de tiempo real.
+A diferencia de un ejercicio puramente estadístico, este repositorio abarca desde el diagnóstico clínico de los datos y la mitigación rigurosa de fuga de información (*Data Leakage*), hasta la serialización y puesta en producción del artefacto predictivo. El flujo de trabajo integra la construcción de pipelines robustos, el empaquetado del modelo en un entorno aislado y su despliegue mediante una API REST, garantizando que el sistema pase de la fase de experimentación local a una arquitectura escalable y lista para integrarse en aplicaciones clínicas de tiempo real.
 
-## Fuente de datos
+# Fuente de datos
 
 El conjunto de datos utilizado es el **Heart Failure Prediction Dataset**, una colección consolidada y curada de 5 bases de datos cardiovasculares independientes (Cleveland, Hungarian, Switzerland, Long Beach VA y Stalog). Al unificar sus atributos comunes y eliminar duplicados, conforma el repositorio más grande disponible en su tipo para propósitos de investigación, contando con un total de **918 observaciones clínicas**.
 
@@ -34,7 +34,7 @@ El conjunto de datos utilizado en este proyecto proviene del repositorio *Heart 
 
 * fedesoriano. (Septiembre, 2021). *Heart Failure Prediction Dataset*. Recuperado el 3 de abril de 2026 de https://www.kaggle.com/fedesoriano/heart-failure-prediction.
 
-## Arquitectura y tecnologías utilizadas
+# Arquitectura y tecnologías utilizadas
 
 Para garantizar la reproducibilidad y el despliegue continuo, el proyecto hace uso de las siguientes herramientas:
 
@@ -44,7 +44,7 @@ Para garantizar la reproducibilidad y el despliegue continuo, el proyecto hace u
 * **Docker:** Contenerización del entorno de la API y sus dependencias.
 * **Kubernetes (K8s):** Orquestación del contenedor local mediante despliegues y servicios balanceados.
 
-## Estructura del repositorio
+# Estructura del repositorio
 
 El proyecto está modularizado para separar claramente la experimentación, los datos, el código fuente y la infraestructura de despliegue:
 
@@ -80,7 +80,7 @@ heart-disease-mlops/
 └── myst.yml
 ```
 
-## Monitoreo y mantenimiento del modelo
+# Monitoreo y mantenimiento del modelo
 
 Como fase crítica del ciclo de vida del proyecto, se integró un protocolo de monitoreo proactivo mediante la librería `Evidently AI`. El análisis de deriva estadística se ejecutó comparando el conjunto de entrenamiento (*Reference*) frente al conjunto de prueba (*Current*), funcionando como una validación interna de estabilidad fundamental antes del despliegue. Este procedimiento asegura que el modelo no solo sea preciso en la fase de entrenamiento, sino que sus bases estadísticas permanezcan coherentes al enfrentarse a nuevos datos, estableciendo así una línea base robusta para la operación del sistema.
 
@@ -88,7 +88,7 @@ Los resultados del análisis demuestran una estabilidad global superior al $90\%
 
 En conclusión, la estabilidad observada en las variables clínicas de mayor peso, como el colesterol, la presión arterial y la frecuencia cardíaca máxima, es un indicador inequívoco de que el modelo generaliza adecuadamente. La ausencia de sesgos estructurales relevantes y la consistencia en las distribuciones de los predictores clave permiten validar técnicamente el artefacto. Por lo tanto, el sistema se considera maduro y se encuentra listo para su integración en entornos de producción bajo la arquitectura de `FastAPI` y `Docker`.
 
-### Reporte de monitoreo
+## Reporte de monitoreo
 
 El sistema genera un dashboard interactivo que permite inspeccionar:
 
@@ -108,11 +108,11 @@ monitoring/drift_report.html
 monitoring/generate_drift_report.py
 ```
 
-## ¿Cómo ejecutar el proyecto?
+# ¿Cómo ejecutar el proyecto?
 
 Siga estos pasos para replicar el entorno de experimentación y despliegue:
 
-### 1. Preparación del Entorno Local
+## 1. Preparación del Entorno Local
 
 Instale las dependencias optimizadas para evitar conflictos de versiones (NumPy < 2.0):
 
@@ -120,7 +120,7 @@ Instale las dependencias optimizadas para evitar conflictos de versiones (NumPy 
 pip install -r docker/requirements.txt
 ```
 
-### 2. Gestión de Monitoreo
+## 2. Gestión de Monitoreo
 
 Genere o actualice el reporte de deriva estadística basado en los últimos datos:
 
@@ -128,7 +128,7 @@ Genere o actualice el reporte de deriva estadística basado en los últimos dato
 python monitoring/generate_drift_report.py
 ```
 
-### 3. Contenerización con Docker
+## 3. Contenerización con Docker
 
 Construya y ejecute la API de inferencia en un entorno aislado:
 
@@ -137,7 +137,7 @@ docker build -t heart-disease-api -f docker/Dockerfile .
 docker run -p 80:80 heart-disease-api
 ```
 
-### 4. Orquestación con Kubernetes (K8s)
+## 4. Orquestación con Kubernetes (K8s)
 
 Despliegue el servicio de forma escalable en un clúster local (ej. Minikube):
 
