@@ -22,9 +22,8 @@
    1. GLOBAL INTERFACE & BRANDING
    ============================================================================= */
 
-/* Hide the default MyST theme toggle */
-.myst-theme-button {
-  display: none !important;
+:root {
+  color-scheme: light
 }
 
 /* Replace the default site title with a custom heading */
@@ -160,11 +159,9 @@ header.myst-fm-authors-affiliations {
 
 /* Prepend an "AUTORES: " label before the author list */
 .myst-fm-authors-grid::before {
-  content: "AUTORES: ";
-  font-size: 0.75rem;
+  content: "Autores: ";
+  font-size: 1rem;
   font-weight: 400;
-  text-transform: uppercase;
-  color: #6b7280;
   margin-right: 0.4rem;
 }
 
@@ -179,7 +176,6 @@ button.myst-fm-author-popover,
 span.myst-fm-author-name {
   font-weight: 400 !important;
   font-size: 1rem !important;
-  color: #111827 !important;
 }
 
 /* --- Comma separator logic ---
@@ -189,7 +185,6 @@ span.myst-fm-author-name {
 
 .myst-fm-author-col::after {
   content: ", ";
-  color: #4b5563;
   font-weight: 400;
 }
 
@@ -274,7 +269,6 @@ a.myst-footer-link .flex-grow > div:not(.myst-footer-link-group),
 a.myst-footer-link[href="/"] .flex-grow::after {
   font-family: inherit !important;
   font-size: 1.01rem !important;
-  color: #4b5563 !important;
   display: block !important;
 }
 
@@ -284,7 +278,6 @@ a.myst-footer-link[href="/"] .flex-grow::after {
   visibility: visible !important;
   font-size: 0.75rem !important;
   font-weight: 400 !important;
-  color: #000000 !important;
   margin-bottom: 0.25rem;
 }
 
